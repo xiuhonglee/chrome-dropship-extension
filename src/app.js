@@ -44,45 +44,103 @@ class Container extends React.Component {
     return el('div', { className: 'shopify_dialog_content' }, ...[children]);
   }
 
+  getProductTitle() {
+    return document.querySelector('.product-intro__head-name').innerText;
+  }
+
+  getProductImages() {
+    const list = document.querySelectorAll('.product-intro__main-item img');
+    const imgs = [];
+
+    for (let i = 0; i < list.length; i++) {
+      imgs.push(list[i].dataset.src);
+    }
+    return imgs;
+  }
+
+  getProductPrice() {
+    return document.querySelector(
+      '.product-intro__head-price .original .from span',
+    ).innerText;
+  }
+
+  getProductSizes() {
+    var list = document.querySelectorAll('.product-intro__size-radio-inner');
+    const sizes = [];
+    for (let i = 0; i < list.length; i++) {
+      sizes.push(list[i].innerText);
+    }
+    return sizes;
+  }
+
+  getProductColors() {
+    var list = document.querySelectorAll('.product-intro__color-block');
+    const colors = [];
+    for (let i = 0; i < list.length; i++) {
+      const thumbnail = document.querySelectorAll(
+        '.product-intro__color-block .color-inner img',
+      )[i].src;
+      colors.push({ type: 'thumbnail', value: thumbnail });
+      colors.push({ type: 'color', value: list[i].ariaLabel });
+    }
+    const chuncks = [];
+    for (let j = 0; j < colors.length; j += 2) {
+      chuncks.push(colors.slice(j, j + 2));
+    }
+    return chuncks;
+  }
+
   renderProductAttr(attr) {
-    var content = [];
+    var content = [
+      el('span', { className: 'shopify_product_attr placeholder' }, '-'),
+    ];
+
     switch (attr) {
       case 'Title':
-        content = ['SHEIN Toddler Girls Colorblock Sweater Dress'];
+        const title = this.getProductTitle();
+        content = [title];
         break;
       case 'Images':
-        content = [
+        const imgs = this.getProductImages();
+        content = imgs.map((href) =>
           el('img', {
             className: 'shopify_product_img',
-            src: 'https://img.ltwebstatic.com/images3_pi/2021/08/26/16299645986fda292ae7d6ef589492dd9d8a31d6aa_thumbnail_100x.webp',
+            src: href.replace('_900x.webp', '_50x.webp'),
           }),
-          el('img', {
-            className: 'shopify_product_img',
-            src: 'https://img.ltwebstatic.com/images3_pi/2021/08/26/1629964599e938b9edf8c439e5f598d119551dfbcc_thumbnail_100x.webp',
-          }),
-        ];
+        );
         break;
+
       case 'Price':
-        content = ['US$11.00'];
+        const price = this.getProductPrice();
+        content = [price];
         break;
       case 'Sizes':
-        content = ['2Y', '3Y', '4Y', '5Y'].map((size) =>
+        const sizes = this.getProductSizes();
+        if (sizes.length === 0) return content;
+
+        content = sizes.map((size) =>
           el('div', { className: 'shopify_product_size_item' }, size),
         );
         break;
       case 'Colors':
-        content = [
-          el('img', {
-            className: 'shopify_product_colors_inner',
-            src: 'https://img.ltwebstatic.com/images3_pi/2021/10/28/1635385851c67bd3ca71c556dcf6b3fc5a0a8f0439_thumbnail_220x293.webp',
-          }),
-          'Red',
-          el('img', {
-            className: 'shopify_product_colors_inner',
-            src: 'https://img.ltwebstatic.com/images3_pi/2021/10/28/16353858403c4249eefd6b1b2a6831c77f1c9f987e_thumbnail_220x293.webp',
-          }),
-          'Black',
-        ];
+        const colors = this.getProductColors();
+        if (colors.length === 0) return content;
+
+        content = colors.map((chunck) =>
+          el(
+            'div',
+            { className: 'shopify_product_colors_item' },
+            el('img', {
+              className: 'shopify_product_colors_inner',
+              src: chunck[0].value,
+            }),
+            el(
+              'div',
+              { className: 'shopify_product_color_txt' },
+              chunck[1].value,
+            ),
+          ),
+        );
       default:
         break;
     }

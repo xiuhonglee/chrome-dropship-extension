@@ -5,12 +5,6 @@
 3. Enable Developer Mode by clicking the toggle switch next to Developer mode
 4. Click the Load unpacked button and select the repo's directory
 
-# Necessary information
-
-- Shopify URL: https://coding-challenge-xiuhong.myshopify.com/admin
-  - usename: sy_likun@163.com
-  - password: coding-challenge
-
 # Log
 
 - [Feature] add variants

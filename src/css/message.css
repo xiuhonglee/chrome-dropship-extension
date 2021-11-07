@@ -1,0 +1,20 @@
+.shopify_confirmation {
+  z-index: 999999;
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 300px;
+  height: 50px;
+  border-radius: 5px;
+  background-color: rgb(150, 190, 80);
+  transform: translateX(-50%);
+  transition: all 0.3s;
+}
+
+.shopify_confirm_msg {
+  color: #fff;
+  font-size: 18px;
+}

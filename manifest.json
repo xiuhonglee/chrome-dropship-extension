@@ -13,7 +13,11 @@
     {
       "matches": ["https://us.shein.com/*scici=*"],
       "exclude_matches": ["*://*/*?ici=*", "*://*/*&ici=*"],
-      "css": ["/src/css/app.css", "/src/css/dialog.css"],
+      "css": [
+        "/src/css/app.css",
+        "/src/css/dialog.css",
+        "/src/css/message.css"
+      ],
       "js": ["/src/vendor/react.js", "/src/vendor/react-dom.js", "/src/app.js"]
     }
   ],

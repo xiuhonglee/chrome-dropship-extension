@@ -5,10 +5,14 @@ document.body.appendChild(root);
 const { createElement: el } = React;
 
 class Container extends React.Component {
-  state = { show: false };
+  state = { showDialog: false, fetchLoading: false, showMessage: false };
 
   setShowDialog(flag = true) {
-    this.setState({ show: flag });
+    this.setState({ showDialog: flag });
+  }
+
+  setShowMessage(flag = true) {
+    this.setState({ showMessage: flag });
   }
 
   renderDialogHeader() {
@@ -186,16 +190,40 @@ class Container extends React.Component {
   renderBottomBtn() {
     const title = this.getProductTitle();
     const images = this.getProductImages();
+    const price = this.getProductPrice();
+    const sizes = this.getProductSizes();
+    const colors = this.getProductColors();
+
     return el(
       'div',
       {
         className: 'shopify_dialog_bottom_btn',
         onClick: () => {
-          chrome.runtime.sendMessage({
-            contentScriptQuery: 'grabProductInfo',
-            title,
-            images,
-          });
+          const self = this;
+          const { fetchLoading } = this.state;
+          // add request lock
+          if (fetchLoading) return;
+          this.setState({ fetchLoading: true });
+
+          chrome.runtime.sendMessage(
+            {
+              contentScriptQuery: 'grabProductInfo',
+              title,
+              images,
+              price,
+              sizes,
+              colors,
+            },
+            function () {
+              self.setState({ fetchLoading: false });
+
+              setTimeout(() => {
+                self.setShowMessage(false);
+              }, 2500);
+            },
+          );
+          this.setShowDialog(false);
+          this.setShowMessage(true);
         },
       },
       'Save',
@@ -209,12 +237,12 @@ class Container extends React.Component {
   }
 
   renderDialog() {
-    const { show } = this.state;
-    const children = show ? [this.renderProductContent()] : [];
+    const { showDialog } = this.state;
+    const children = showDialog ? [this.renderProductContent()] : [];
 
     return el(
       'div',
-      { className: show ? 'shopify_dialog' : 'hidden' },
+      { className: showDialog ? 'shopify_dialog' : 'hidden' },
       ...children,
     );
   }
@@ -232,12 +260,36 @@ class Container extends React.Component {
     );
   }
 
+  renderConfirmation() {
+    const { fetchLoading, showMessage } = this.state;
+    const content = showMessage
+      ? fetchLoading
+        ? 'grab product info ...'
+        : 'grab product info success !'
+      : '';
+    return el(
+      'div',
+      {
+        className: 'shopify_confirmation',
+        style: { top: showMessage ? '20px' : '-100px' },
+      },
+      el(
+        'span',
+        {
+          className: 'shopify_confirm_msg',
+        },
+        content,
+      ),
+    );
+  }
+
   render() {
     return React.createElement(
       'div',
       { className: 'shopify_wrap' },
       this.renderGrabBtn(),
       this.renderDialog(),
+      this.renderConfirmation(),
     );
   }
 }

@@ -58,7 +58,6 @@ class Container extends React.Component {
       '.product-intro__main-item .j-verlok-lazy',
     );
     const imgs = [];
-
     for (let i = 0; i < list.length; i++) {
       imgs.push(list[i].dataset.src);
     }
@@ -82,11 +81,11 @@ class Container extends React.Component {
   }
 
   getProductColors() {
-    var list = document.querySelectorAll('.product-intro__color-block');
+    var list = document.querySelectorAll('.product-intro__color-radio');
     const colors = [];
     for (let i = 0; i < list.length; i++) {
       const thumbnail = document.querySelectorAll(
-        '.product-intro__color-block .color-inner img',
+        '.product-intro__color-radio .color-inner img',
       )[i].src;
       colors.push({ type: 'thumbnail', value: thumbnail });
       colors.push({ type: 'color', value: list[i].ariaLabel });
@@ -192,12 +191,11 @@ class Container extends React.Component {
       {
         className: 'shopify_dialog_bottom_btn',
         onClick: () => {
-          chrome.runtime.sendMessage(
-            { contentScriptQuery: 'grabProductInfo', title, images },
-            function (response) {
-              console.log(response);
-            },
-          );
+          chrome.runtime.sendMessage({
+            contentScriptQuery: 'grabProductInfo',
+            title,
+            images,
+          });
         },
       },
       'Save',

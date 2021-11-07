@@ -1,6 +1,6 @@
 // Default keys
-const shop_id = 'xiuhong';
-const api_secret = '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';
+const shop_id = 'coding-challenge-xiuhong';
+const api_secret = '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';
 
 class Main {
   constructor() {

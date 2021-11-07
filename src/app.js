@@ -6,7 +6,6 @@ const { createElement: el } = React;
 
 let goodsDetailv2SsrData = Object.create(null);
 document.addEventListener('webpage', (res) => {
-  console.log('hhhaa', res);
   const {
     detail: { colorList, sizeList },
   } = res;

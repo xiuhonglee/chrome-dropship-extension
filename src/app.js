@@ -4,6 +4,16 @@ document.body.appendChild(root);
 
 const { createElement: el } = React;
 
+let goodsDetailv2SsrData = Object.create(null);
+document.addEventListener('webpage', (res) => {
+  console.log('hhhaa', res);
+  const {
+    detail: { colorList, sizeList },
+  } = res;
+  goodsDetailv2SsrData.colorList = colorList;
+  goodsDetailv2SsrData.sizeList = sizeList;
+});
+
 class Container extends React.Component {
   state = { showDialog: false, fetchLoading: false, showMessage: false };
 
@@ -190,29 +200,26 @@ class Container extends React.Component {
   renderBottomBtn() {
     const title = this.getProductTitle();
     const images = this.getProductImages();
-    const price = this.getProductPrice();
-    const sizes = this.getProductSizes();
-    const colors = this.getProductColors();
 
     return el(
       'div',
       {
         className: 'shopify_dialog_bottom_btn',
-        onClick: () => {
+        onClick: async () => {
           const self = this;
           const { fetchLoading } = this.state;
           // add request lock
           if (fetchLoading) return;
           this.setState({ fetchLoading: true });
+          debugger
 
           chrome.runtime.sendMessage(
             {
               contentScriptQuery: 'grabProductInfo',
               title,
               images,
-              price,
-              sizes,
-              colors,
+              colorList: goodsDetailv2SsrData.colorList,
+              sizeList: goodsDetailv2SsrData.sizeList,
             },
             function () {
               self.setState({ fetchLoading: false });
@@ -294,4 +301,4 @@ class Container extends React.Component {
   }
 }
 
-ReactDOM.render(React.createElement(Container), root);
+window.ReactDOM.render(React.createElement(Container), root);

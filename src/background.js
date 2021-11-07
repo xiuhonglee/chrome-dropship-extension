@@ -43,19 +43,50 @@ class Main {
     });
   }
 
-  dealOption({ sizes, colors }) {
-    const reMapColor = colors.map((chunck) => chunck[1].value);
+  dealOption({ sizeList, colorList }) {
+    const sizes = sizeList
+      .filter((item) => item.attr_name === 'Size')
+      .map((item) => item.attr_value_en);
+    const colors = colorList.map((item) => {
+      return item.productDetails.filter(
+        (item) => item.attr_name_en === 'Color',
+      )[0].attr_value_en;
+    });
+
     return [
       { name: 'Size', values: sizes },
-      { name: 'Color', values: reMapColor },
+      { name: 'Color', values: colors },
     ];
   }
 
-  dealVariants(sizes, colors) {
-    const reMapColor = colors.map((chunck) => chunck[1].value);
+  dealVariants({ sizeList, colorList }) {
+    const sizes = sizeList
+      .filter((item) => item.attr_name === 'Size')
+      .map((item) => item.attr_value_en);
+
+    const colorRelatePrice = colorList.map((item) => {
+      const color = item.productDetails.filter(
+        (item) => item.attr_name_en === 'Color',
+      )[0].attr_value_en;
+      const price = item.retailPrice.usdAmount;
+
+      return { color, price };
+    });
+
+    const variants = [];
+    for (let i = 0; i < colorRelatePrice.length; i++) {
+      for (let j = 0; j < sizes.length; j++) {
+        variants.push({
+          option1: sizes[j],
+          option2: colorRelatePrice[i].color,
+          price: colorRelatePrice[i].price,
+        });
+      }
+    }
+    return variants;
   }
 
-  sendRequest({ title, images, price, sizes, colors }) {
+  sendRequest({ title, images, colorList, sizeList }) {
     return fetch(
       `https://${shop_id}.myshopify.com/admin/api/2021-10/products.json`,
       {
@@ -68,19 +99,8 @@ class Main {
           product: {
             title,
             images: this.dealImages(images),
-            options: this.dealOption({ price, sizes, colors }),
-            variants: [
-              {
-                price: price,
-                option1: sizes[0],
-                option2: 'Blue',
-              },
-              {
-                price: price,
-                option1: sizes[1],
-                option2: 'Black',
-              },
-            ],
+            options: this.dealOption({ colorList, sizeList }),
+            variants: this.dealVariants({ colorList, sizeList }),
           },
         }),
       },

@@ -7,18 +7,33 @@
     "service_worker": "src/background.js",
     "type": "module"
   },
-  "permissions": ["tabs", "storage", "activeTab", "scripting"],
+  "permissions": ["tabs", "storage", "scripting"],
   "host_permissions": ["https://us.shein.com/", "https://*.myshopify.com/*"],
   "content_scripts": [
     {
       "matches": ["https://us.shein.com/*scici=*"],
+      "run_at": "document_idle",
       "exclude_matches": ["*://*/*?ici=*", "*://*/*&ici=*"],
       "css": [
         "/src/css/app.css",
         "/src/css/dialog.css",
         "/src/css/message.css"
       ],
-      "js": ["/src/vendor/react.js", "/src/vendor/react-dom.js", "/src/app.js"]
+      "js": [
+        "/src/vendor/react.js",
+        "/src/vendor/react-dom.js",
+        "/src/app.js",
+        "/src/inject.js"
+      ]
+    }
+  ],
+  "externally_connectable": {
+    "matches": ["https://us.shein.com/*"]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["src/webpage.js"],
+      "matches": ["https://us.shein.com/*"]
     }
   ],
   "action": {

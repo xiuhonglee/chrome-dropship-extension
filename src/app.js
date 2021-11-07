@@ -32,16 +32,21 @@ class Container extends React.Component {
 
   renderProductContent() {
     const header = this.renderDialogHeader();
-
     const list = el(
       'ul',
       { className: 'shopify_dialog_list_wrap' },
       ...this.renderProductItem(),
     );
+    const bottom = this.renderDialogBottom();
 
-    const children = [header, list];
-
+    const children = [header, list, bottom];
     return el('div', { className: 'shopify_dialog_content' }, ...[children]);
+  }
+
+  unique(arr = []) {
+    return arr.filter(function (item, index, arr) {
+      return arr.indexOf(item, 0) === index;
+    });
   }
 
   getProductTitle() {
@@ -49,13 +54,16 @@ class Container extends React.Component {
   }
 
   getProductImages() {
-    const list = document.querySelectorAll('.product-intro__main-item img');
+    const list = document.querySelectorAll(
+      '.product-intro__main-item .j-verlok-lazy',
+    );
     const imgs = [];
 
     for (let i = 0; i < list.length; i++) {
       imgs.push(list[i].dataset.src);
     }
-    return imgs;
+    // cause swipe component need repeat one image
+    return this.unique(imgs);
   }
 
   getProductPrice() {
@@ -102,10 +110,14 @@ class Container extends React.Component {
         break;
       case 'Images':
         const imgs = this.getProductImages();
+
         content = imgs.map((href) =>
           el('img', {
             className: 'shopify_product_img',
             src: href.replace('_900x.webp', '_50x.webp'),
+            onClick: () => {
+              open(href);
+            },
           }),
         );
         break;
@@ -129,7 +141,12 @@ class Container extends React.Component {
         content = colors.map((chunck) =>
           el(
             'div',
-            { className: 'shopify_product_colors_item' },
+            {
+              className: 'shopify_product_colors_item',
+              onClick: () => {
+                open(chunck[0].value);
+              },
+            },
             el('img', {
               className: 'shopify_product_colors_inner',
               src: chunck[0].value,
@@ -159,15 +176,44 @@ class Container extends React.Component {
     );
   }
 
+  renderBottomStatus() {
+    return el(
+      'div',
+      { className: 'shopify_dialog_bottom_status_info' },
+      'Save to your shopify store',
+    );
+  }
+
+  renderBottomBtn() {
+    const title = this.getProductTitle();
+    const images = this.getProductImages();
+    return el(
+      'div',
+      {
+        className: 'shopify_dialog_bottom_btn',
+        onClick: () => {
+          chrome.runtime.sendMessage(
+            { contentScriptQuery: 'grabProductInfo', title, images },
+            function (response) {
+              console.log(response);
+            },
+          );
+        },
+      },
+      'Save',
+    );
+  }
+
   renderDialogBottom() {
-    return el('div', { className: 'shopify_dialog_bottom' });
+    const status = this.renderBottomStatus();
+    const btn = this.renderBottomBtn();
+    return el('div', { className: 'shopify_dialog_bottom' }, status, btn);
   }
 
   renderDialog() {
     const { show } = this.state;
-    const children = show
-      ? [this.renderProductContent(), this.renderDialogBottom()]
-      : [];
+    const children = show ? [this.renderProductContent()] : [];
+
     return el(
       'div',
       { className: show ? 'shopify_dialog' : 'hidden' },

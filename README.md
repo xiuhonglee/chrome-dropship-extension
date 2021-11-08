@@ -7,6 +7,9 @@
 
 # Log
 
+- [Feature] optimization
+  - add namespace
+  - get color by goodsDetailv2SsrData
 - [Fix] The variant 'size / color' already exists
 - [Fix] generate sku by color*size*price
 - [Feature] add variants

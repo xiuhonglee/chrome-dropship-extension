@@ -1,15 +1,28 @@
 // webpage env can access window.goodsDetailv2SsrData
 
-const current_color_detail =
+// namespace
+const SHOPIFY_DRIPSHIP_EXTENSION = {};
+
+SHOPIFY_DRIPSHIP_EXTENSION.current_color_detail =
   goodsDetailv2SsrData.productIntroData?.detail || [];
-const relation_color =
+
+SHOPIFY_DRIPSHIP_EXTENSION.relation_color =
   goodsDetailv2SsrData.productIntroData?.relation_color || [];
 
-const colorList = [current_color_detail, ...relation_color];
-const sizeList = goodsDetailv2SsrData.productIntroData?.attrSizeList;
+SHOPIFY_DRIPSHIP_EXTENSION.colorList = [
+  SHOPIFY_DRIPSHIP_EXTENSION.current_color_detail,
+  ...SHOPIFY_DRIPSHIP_EXTENSION.relation_color,
+];
+SHOPIFY_DRIPSHIP_EXTENSION.sizeList =
+  goodsDetailv2SsrData.productIntroData?.attrSizeList;
 
 // Don't need setTimeout here actually ...
 setTimeout(() => {
-  const evt = new CustomEvent('webpage', { detail: { colorList, sizeList } });
+  const evt = new CustomEvent('webpage', {
+    detail: {
+      colorList: SHOPIFY_DRIPSHIP_EXTENSION.colorList,
+      sizeList: SHOPIFY_DRIPSHIP_EXTENSION.sizeList,
+    },
+  });
   document.dispatchEvent(evt);
 }, 300);

@@ -94,20 +94,16 @@ class Container extends React.Component {
   }
 
   getProductColors() {
-    var list = document.querySelectorAll('.product-intro__color-radio');
-    const colors = [];
-    for (let i = 0; i < list.length; i++) {
-      const thumbnail = document.querySelectorAll(
-        '.product-intro__color-radio .color-inner img',
-      )[i].src;
-      colors.push({ type: 'thumbnail', value: thumbnail });
-      colors.push({ type: 'color', value: list[i].ariaLabel });
-    }
-    const chuncks = [];
-    for (let j = 0; j < colors.length; j += 2) {
-      chuncks.push(colors.slice(j, j + 2));
-    }
-    return chuncks;
+    const colorList = __goodsDetailv2SsrData.colorList;
+    const colorAndImgs = colorList.map((item) => {
+      const color = item.productDetails.filter(
+        (item) => item.attr_name_en === 'Color',
+      )[0].attr_value_en;
+      const thumbnail = item.color_image;
+      return { color, thumbnail };
+    });
+
+    return colorAndImgs;
   }
 
   renderProductAttr(attr) {
@@ -156,18 +152,14 @@ class Container extends React.Component {
             {
               className: 'shopify_product_colors_item',
               onClick: () => {
-                open(chunck[0].value);
+                open(`https:${chunck.thumbnail}`);
               },
             },
             el('img', {
               className: 'shopify_product_colors_inner',
-              src: chunck[0].value,
+              src: chunck.thumbnail,
             }),
-            el(
-              'div',
-              { className: 'shopify_product_color_txt' },
-              chunck[1].value,
-            ),
+            el('div', { className: 'shopify_product_color_txt' }, chunck.color),
           ),
         );
       default:

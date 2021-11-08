@@ -17,21 +17,6 @@ class Main {
     });
   }
 
-  mapVariants() {
-    return [
-      {
-        option1: 'Blue',
-        option2: '155',
-        option3: '1.00',
-      },
-      {
-        option1: 'Black',
-        option2: '159',
-        option3: '1.00',
-      },
-    ];
-  }
-
   dealImages(images = []) {
     return images.map((imgLink) => {
       let completeLink =
@@ -59,12 +44,8 @@ class Main {
     ];
   }
 
-  dealVariants({ sizeList, colorList }) {
-    const sizes = sizeList
-      .filter((item) => item.attr_name === 'Size')
-      .map((item) => item.attr_value_en);
-
-    const colorRelatePrice = colorList.map((item) => {
+  getColorAndRelatedPrice(colorList = []) {
+    return colorList.map((item) => {
       const color = item.productDetails.filter(
         (item) => item.attr_name_en === 'Color',
       )[0].attr_value_en;
@@ -72,17 +53,54 @@ class Main {
 
       return { color, price };
     });
+  }
 
+  getSizeAndRelatedPrice(sizeList = []) {
+    return sizeList.map((item) => {
+      const size = item.attr_value_en;
+      const price = item.price?.retailPrice?.usdAmount;
+      return { size, price };
+    });
+  }
+
+  // generate sku by size * color * price
+  dealVariants({ sizeList, colorList }) {
+    const sizes = sizeList
+      .filter((item) => item.attr_name === 'Size')
+      .map((item) => item.attr_value_en);
+
+    const sizeAndRelatePrice = this.getSizeAndRelatedPrice(sizeList);
+    const colorAndRelatedPrice = this.getColorAndRelatedPrice(colorList);
     const variants = [];
-    for (let i = 0; i < colorRelatePrice.length; i++) {
-      for (let j = 0; j < sizes.length; j++) {
+
+    if (sizes.length === 0 && colorAndRelatedPrice.length === 0)
+      return variants;
+    if (sizes.length === 0) {
+      for (let i = 0; i < colorAndRelatedPrice.length; i++) {
         variants.push({
-          option1: sizes[j],
-          option2: colorRelatePrice[i].color,
-          price: colorRelatePrice[i].price,
+          option2: colorAndRelatedPrice[i].color,
+          price: colorAndRelatedPrice[i].price,
         });
       }
+    } else if (sizeAndRelatePrice.length === 0) {
+      for (let i = 0; i < sizeAndRelatePrice.length; i++) {
+        variants.push({
+          option2: sizeAndRelatePrice[i].color,
+          price: sizeAndRelatePrice[i].price,
+        });
+      }
+    } else {
+      for (let i = 0; i < colorAndRelatedPrice.length; i++) {
+        for (let j = 0; j < sizes.length; j++) {
+          variants.push({
+            option1: sizes[j],
+            option2: colorAndRelatedPrice[i].color,
+            price: colorAndRelatedPrice[i].price,
+          });
+        }
+      }
     }
+
     return variants;
   }
 

@@ -4,13 +4,13 @@ document.body.appendChild(root);
 
 const { createElement: el } = React;
 
-let goodsDetailv2SsrData = Object.create(null);
+let __goodsDetailv2SsrData = Object.create(null);
 document.addEventListener('webpage', (res) => {
   const {
     detail: { colorList, sizeList },
   } = res;
-  goodsDetailv2SsrData.colorList = colorList;
-  goodsDetailv2SsrData.sizeList = sizeList;
+  __goodsDetailv2SsrData.colorList = colorList;
+  __goodsDetailv2SsrData.sizeList = sizeList;
 });
 
 class Container extends React.Component {
@@ -210,15 +210,14 @@ class Container extends React.Component {
           // add request lock
           if (fetchLoading) return;
           this.setState({ fetchLoading: true });
-          debugger
 
           chrome.runtime.sendMessage(
             {
               contentScriptQuery: 'grabProductInfo',
               title,
               images,
-              colorList: goodsDetailv2SsrData.colorList,
-              sizeList: goodsDetailv2SsrData.sizeList,
+              colorList: __goodsDetailv2SsrData.colorList,
+              sizeList: __goodsDetailv2SsrData.sizeList,
             },
             function () {
               self.setState({ fetchLoading: false });

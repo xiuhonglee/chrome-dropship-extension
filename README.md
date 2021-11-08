@@ -7,6 +7,7 @@
 
 # Log
 
+- [Fix] generate sku by color*size*price
 - [Feature] add variants
   - ssrData contains detail data of goods in webpage
   - Need inject script into page, If want to access webpage data

@@ -20,6 +20,7 @@ SHOPIFY_DRIPSHIP_EXTENSION.sizeList =
 setTimeout(() => {
   const evt = new CustomEvent('webpage', {
     detail: {
+      currentProductDetail: goodsDetailv2SsrData.productIntroData,
       colorList: SHOPIFY_DRIPSHIP_EXTENSION.colorList,
       sizeList: SHOPIFY_DRIPSHIP_EXTENSION.sizeList,
     },

@@ -8,6 +8,8 @@
 # Log
 
 - [Feature] optimization
+  - get title & size & images from goodsDetailv2SsrData
+- [Feature] optimization
   - add namespace
   - get color by goodsDetailv2SsrData
 - [Fix] The variant 'size / color' already exists

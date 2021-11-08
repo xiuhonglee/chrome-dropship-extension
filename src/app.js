@@ -6,11 +6,8 @@ const { createElement: el } = React;
 
 let __goodsDetailv2SsrData = Object.create(null);
 document.addEventListener('webpage', (res) => {
-  const {
-    detail: { colorList, sizeList },
-  } = res;
-  __goodsDetailv2SsrData.colorList = colorList;
-  __goodsDetailv2SsrData.sizeList = sizeList;
+  const { detail } = res;
+  __goodsDetailv2SsrData = Object.assign({}, __goodsDetailv2SsrData, detail);
 });
 
 class Container extends React.Component {
@@ -56,41 +53,27 @@ class Container extends React.Component {
     return el('div', { className: 'shopify_dialog_content' }, ...[children]);
   }
 
-  unique(arr = []) {
-    return arr.filter(function (item, index, arr) {
-      return arr.indexOf(item, 0) === index;
-    });
-  }
-
   getProductTitle() {
-    return document.querySelector('.product-intro__head-name').innerText;
+    return __goodsDetailv2SsrData.currentProductDetail?.detail?.goods_name;
   }
 
   getProductImages() {
-    const list = document.querySelectorAll(
-      '.product-intro__main-item .j-verlok-lazy',
-    );
-    const imgs = [];
-    for (let i = 0; i < list.length; i++) {
-      imgs.push(list[i].dataset.src);
-    }
-    // cause swipe component need repeat one image
-    return this.unique(imgs);
+    const goods_imgs =
+      __goodsDetailv2SsrData.currentProductDetail?.goods_imgs || [];
+    const main_img = goods_imgs.main_image;
+    const detail_imgs = goods_imgs.detail_image;
+    return [main_img, ...detail_imgs];
   }
 
   getProductPrice() {
-    return document.querySelector(
-      '.product-intro__head-price .original .from span',
-    ).innerText;
+    const price =
+      __goodsDetailv2SsrData.currentProductDetail?.detail?.salePrice
+        ?.usdAmountWithSymbol;
+    return price;
   }
 
   getProductSizes() {
-    var list = document.querySelectorAll('.product-intro__size-radio-inner');
-    const sizes = [];
-    for (let i = 0; i < list.length; i++) {
-      sizes.push(list[i].innerText);
-    }
-    return sizes;
+    return __goodsDetailv2SsrData.sizeList.map((item) => item.attr_value_en);
   }
 
   getProductColors() {
@@ -122,9 +105,9 @@ class Container extends React.Component {
         content = imgs.map((href) =>
           el('img', {
             className: 'shopify_product_img',
-            src: href.replace('_900x.webp', '_50x.webp'),
+            src: href.thumbnail_webp,
             onClick: () => {
-              open(href);
+              open(`https:${href.origin_image}`);
             },
           }),
         );
@@ -190,7 +173,7 @@ class Container extends React.Component {
 
   renderBottomBtn() {
     const title = this.getProductTitle();
-    const images = this.getProductImages();
+    const images = this.getProductImages().map((item) => item.origin_image);
 
     return el(
       'div',

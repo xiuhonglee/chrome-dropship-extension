@@ -7,7 +7,6 @@ const relation_color =
 
 const colorList = [current_color_detail, ...relation_color];
 const sizeList = goodsDetailv2SsrData.productIntroData?.attrSizeList;
-debugger
 
 // Don't need setTimeout here actually ...
 setTimeout(() => {

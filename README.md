@@ -7,6 +7,7 @@
 
 # Log
 
+- [Fix] The variant 'size / color' already exists
 - [Fix] generate sku by color*size*price
 - [Feature] add variants
   - ssrData contains detail data of goods in webpage

@@ -28,6 +28,18 @@ class Main {
     });
   }
 
+  unique(arr, key) {
+    if (!arr) return arr;
+    if (key === undefined) return [...new Set(arr)];
+    const map = {
+      string: (e) => e[key],
+      function: (e) => key(e),
+    };
+    const fn = map[typeof key];
+    const obj = arr.reduce((o, e) => ((o[fn(e)] = e), o), {});
+    return Object.values(obj);
+  }
+
   dealOption({ sizeList, colorList }) {
     const sizes = sizeList
       .filter((item) => item.attr_name === 'Size')
@@ -40,7 +52,7 @@ class Main {
 
     return [
       { name: 'Size', values: sizes },
-      { name: 'Color', values: colors },
+      { name: 'Color', values: this.unique(colors) }, // There may be duplicates
     ];
   }
 
@@ -65,35 +77,35 @@ class Main {
 
   // generate sku by size * color * price
   dealVariants({ sizeList, colorList }) {
-    const sizes = sizeList
-      .filter((item) => item.attr_name === 'Size')
-      .map((item) => item.attr_value_en);
-
     const sizeAndRelatePrice = this.getSizeAndRelatedPrice(sizeList);
-    const colorAndRelatedPrice = this.getColorAndRelatedPrice(colorList);
+    let colorAndRelatedPrice = this.getColorAndRelatedPrice(colorList);
+    colorAndRelatedPrice = this.unique(colorAndRelatedPrice, 'color'); // There may be duplicates
+
     const variants = [];
 
-    if (sizes.length === 0 && colorAndRelatedPrice.length === 0)
+    if (sizeAndRelatePrice.length === 0 && colorAndRelatedPrice.length === 0)
       return variants;
-    if (sizes.length === 0) {
+    if (sizeAndRelatePrice.length === 0) {
       for (let i = 0; i < colorAndRelatedPrice.length; i++) {
         variants.push({
           option2: colorAndRelatedPrice[i].color,
           price: colorAndRelatedPrice[i].price,
         });
       }
+      return variants;
     } else if (sizeAndRelatePrice.length === 0) {
       for (let i = 0; i < sizeAndRelatePrice.length; i++) {
         variants.push({
-          option2: sizeAndRelatePrice[i].color,
+          option1: sizeAndRelatePrice[i].size,
           price: sizeAndRelatePrice[i].price,
         });
       }
+      return variants;
     } else {
       for (let i = 0; i < colorAndRelatedPrice.length; i++) {
-        for (let j = 0; j < sizes.length; j++) {
+        for (let j = 0; j < sizeAndRelatePrice.length; j++) {
           variants.push({
-            option1: sizes[j],
+            option1: sizeAndRelatePrice[j].size,
             option2: colorAndRelatedPrice[i].color,
             price: colorAndRelatedPrice[i].price,
           });
